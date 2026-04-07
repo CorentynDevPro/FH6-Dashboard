@@ -1,29 +1,38 @@
 FROM node:20-alpine AS base
-WORKDIR /app
 RUN npm install -g pnpm@latest
+WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile || pnpm install
+# Copy workspace manifests and lockfile for reproducible installs
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+# Copy each workspace package manifest so pnpm can resolve the graph
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY apps/backend/package.json ./apps/backend/
+RUN pnpm install --frozen-lockfile
 
 FROM base AS development
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY packages ./packages
+COPY apps/backend ./apps/backend
+WORKDIR /app/apps/backend
 RUN pnpm prisma generate
 EXPOSE 3000
 CMD ["pnpm", "dev"]
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY packages ./packages
+COPY apps/backend ./apps/backend
+WORKDIR /app/apps/backend
 RUN pnpm prisma generate
 RUN pnpm build
 
 FROM node:20-alpine AS production
-WORKDIR /app
 RUN npm install -g pnpm@latest
-COPY --from=builder /app/dist ./dist
+WORKDIR /app
+COPY --from=builder /app/apps/backend/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/apps/backend/prisma ./prisma
 EXPOSE 3000
 CMD ["node", "dist/main"]

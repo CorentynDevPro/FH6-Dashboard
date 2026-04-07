@@ -19,8 +19,8 @@ services:
 
   backend:
     build:
-      context: ./apps/backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/backend/Dockerfile
       target: development
     container_name: fh6_backend
     restart: unless-stopped
@@ -38,13 +38,13 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./apps/backend:/app
+      - ./:/app
       - /app/node_modules
 
   frontend:
     build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/frontend/Dockerfile
       target: development
     container_name: fh6_frontend
     restart: unless-stopped
@@ -56,7 +56,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./apps/frontend:/app
+      - ./:/app
       - /app/node_modules
 
 volumes:
