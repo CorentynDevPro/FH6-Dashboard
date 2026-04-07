@@ -5,7 +5,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
 import {
   Chart,
   RadarController,
@@ -34,7 +35,7 @@ export default defineComponent({
   },
   data() {
     return {
-      chart: null as Chart | null,
+      chart: null as Chart<any> | null,
     };
   },
   watch: {
@@ -99,7 +100,7 @@ export default defineComponent({
               },
               pointLabels: {
                 color: textColor,
-                font: { size: 12, weight: '500' },
+                font: { size: 12, weight: 500 },
               },
               grid: { color: gridColor },
               angleLines: { color: gridColor },

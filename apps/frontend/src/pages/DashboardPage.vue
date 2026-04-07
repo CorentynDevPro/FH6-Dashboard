@@ -168,8 +168,8 @@ export default defineComponent({
     formatNumber(n: number): string {
       return new Intl.NumberFormat().format(n);
     },
-    challengeVariant(type: string): string {
-      const map: Record<string, string> = { DAILY: 'success', WEEKLY: 'primary', SEASONAL: 'warning', SPECIAL: 'danger' };
+    challengeVariant(type: string): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' {
+      const map: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> = { DAILY: 'success', WEEKLY: 'primary', SEASONAL: 'warning', SPECIAL: 'danger' };
       return map[type] || 'default';
     },
     timeUntil(date: string): string {

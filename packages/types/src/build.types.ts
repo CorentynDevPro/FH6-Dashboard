@@ -1,5 +1,5 @@
-import { User } from './user.types';
-import { Car } from './car.types';
+import type { User } from './user.types';
+import type { Car } from './car.types';
 
 export interface Build {
   id: string;

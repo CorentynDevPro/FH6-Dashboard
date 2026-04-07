@@ -65,7 +65,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
 import type { Car } from '@fh6/types';
 import AppBadge from '@/components/common/AppBadge.vue';
 
@@ -92,8 +93,8 @@ export default defineComponent({
       };
       return colors[this.car.carClass] || 'bg-gray-400';
     },
-    categoryVariant(): string {
-      const variants: Record<string, string> = {
+    categoryVariant(): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' {
+      const variants: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
         HYPERCAR: 'danger',
         SPORT: 'primary',
         MUSCLE: 'warning',

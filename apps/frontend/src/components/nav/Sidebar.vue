@@ -125,7 +125,7 @@ export default defineComponent({
     isLoggedIn() {
       return this.authStore.isLoggedIn;
     },
-    navItems() {
+    navItems(): Array<{ name: string; to: string; icon: string; badge?: string }> {
       return [
         { name: 'Home', to: '/', icon: '🏠' },
         { name: 'Dashboard', to: '/dashboard', icon: '📊' },
