@@ -138,6 +138,8 @@ model Build {
   tuneCode    String?
   isPublic    Boolean  @default(true)
   tags        String[]
+  /// JSON object storing tuning configuration. Expected keys: engine (object), suspension (object),
+  /// tyres (object), gearbox (object), aero (object), brakes (object). Each key is optional.
   setupData   Json     @default("{}")
   likesCount  Int      @default(0)
   createdAt   DateTime @default(now())

@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import router from '@/router';
+import { useAuthStore } from '@/stores/auth.store';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
@@ -8,9 +10,11 @@ const apiClient: AxiosInstance = axios.create({
   timeout: 15000,
 });
 
-// Request interceptor — attach JWT
+// Request interceptor — attach JWT from in-memory store
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('accessToken');
+  // Access token lives in Pinia store (memory only, not localStorage)
+  const authStore = useAuthStore();
+  const token = authStore.accessToken;
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -54,9 +58,8 @@ apiClient.interceptors.response.use(
 
       const refreshToken = localStorage.getItem('refreshToken');
       if (!refreshToken) {
-        localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/auth/login';
+        router.push({ name: 'login' });
         return Promise.reject(error);
       }
 
@@ -67,7 +70,11 @@ apiClient.interceptors.response.use(
         );
 
         const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
-        localStorage.setItem('accessToken', accessToken);
+
+        // Update in-memory store with new access token
+        const authStore = useAuthStore();
+        authStore.accessToken = accessToken;
+        authStore.refreshToken = newRefreshToken;
         localStorage.setItem('refreshToken', newRefreshToken);
 
         apiClient.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
@@ -77,9 +84,10 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/auth/login';
+        const authStore = useAuthStore();
+        authStore.clearAuth();
+        router.push({ name: 'login' });
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

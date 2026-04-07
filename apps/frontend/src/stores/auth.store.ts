@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
 import { authApi } from '@/api/auth.api';
-import { usersApi } from '@/api/users.api';
 import type { User } from '@fh6/types';
 
 interface AuthState {
   user: User | null;
+  // Access token kept in-memory only (not persisted) to reduce XSS exposure
   accessToken: string | null;
+  // Refresh token persisted in localStorage; for higher security deploy with httpOnly cookies
   refreshToken: string | null;
   loading: boolean;
   error: string | null;
@@ -14,7 +15,7 @@ interface AuthState {
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
-    accessToken: localStorage.getItem('accessToken'),
+    accessToken: null, // intentionally NOT loaded from localStorage
     refreshToken: localStorage.getItem('refreshToken'),
     loading: false,
     error: null,
@@ -27,10 +28,13 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async initializeAuth() {
-      if (this.accessToken) {
+      if (this.refreshToken) {
         try {
-          const user = await usersApi.getMe();
+          const { tokens, user } = await authApi.refresh(this.refreshToken);
+          this.accessToken = tokens.accessToken;
+          this.refreshToken = tokens.refreshToken;
           this.user = user;
+          localStorage.setItem('refreshToken', tokens.refreshToken);
         } catch {
           this.clearAuth();
         }
@@ -45,7 +49,7 @@ export const useAuthStore = defineStore('auth', {
         this.accessToken = tokens.accessToken;
         this.refreshToken = tokens.refreshToken;
         this.user = user;
-        localStorage.setItem('accessToken', tokens.accessToken);
+        // Only persist refresh token; access token lives in memory only
         localStorage.setItem('refreshToken', tokens.refreshToken);
       } catch (err: any) {
         this.error = err.response?.data?.message || 'Login failed';
@@ -63,7 +67,6 @@ export const useAuthStore = defineStore('auth', {
         this.accessToken = tokens.accessToken;
         this.refreshToken = tokens.refreshToken;
         this.user = user;
-        localStorage.setItem('accessToken', tokens.accessToken);
         localStorage.setItem('refreshToken', tokens.refreshToken);
       } catch (err: any) {
         this.error = err.response?.data?.message || 'Registration failed';
@@ -88,7 +91,6 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = tokens.accessToken;
       this.refreshToken = tokens.refreshToken;
       this.user = user;
-      localStorage.setItem('accessToken', tokens.accessToken);
       localStorage.setItem('refreshToken', tokens.refreshToken);
     },
 
@@ -96,7 +98,6 @@ export const useAuthStore = defineStore('auth', {
       this.user = null;
       this.accessToken = null;
       this.refreshToken = null;
-      localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     },
 
