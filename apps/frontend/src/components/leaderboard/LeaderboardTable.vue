@@ -83,7 +83,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import type { RankingEntry } from '@/api/rankings.api';
 

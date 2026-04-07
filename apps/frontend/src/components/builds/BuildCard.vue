@@ -87,7 +87,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
 import type { Build } from '@fh6/types';
 import AppBadge from '@/components/common/AppBadge.vue';
 import { timeAgo } from '@fh6/ui';

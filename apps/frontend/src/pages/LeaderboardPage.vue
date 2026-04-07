@@ -84,8 +84,8 @@ export default defineComponent({
       pageSize: 50,
       total: 0,
       tabs: [
-        { key: 'global', label: '🌍 Global' },
-        { key: 'friends', label: '👥 Friends' },
+        { key: 'global' as const, label: '🌍 Global' },
+        { key: 'friends' as const, label: '👥 Friends' },
       ],
     };
   },

@@ -61,7 +61,7 @@ export default defineComponent({
   },
   data() {
     return {
-      chart: null as Chart | null,
+      chart: null as Chart<any> | null,
     };
   },
   watch: {
