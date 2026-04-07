@@ -13,20 +13,22 @@ RUN pnpm install --frozen-lockfile
 
 FROM base AS development
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY packages ./packages
 COPY apps/backend ./apps/backend
-# Run prisma generate from the workspace root where node_modules lives
-RUN node node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
+# Run prisma generate using the backend workspace's node_modules
+RUN node apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
 EXPOSE 3000
 CMD ["pnpm", "dev"]
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY packages ./packages
 COPY apps/backend ./apps/backend
-# Run prisma generate from the workspace root where node_modules lives
-RUN node node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
+# Run prisma generate using the backend workspace's node_modules
+RUN node apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
 RUN pnpm build
 
