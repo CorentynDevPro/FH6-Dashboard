@@ -17,7 +17,7 @@ COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY packages ./packages
 COPY apps/backend ./apps/backend
 # Run prisma generate using the backend workspace's node_modules
-RUN node apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
+RUN apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
 EXPOSE 3000
 CMD ["pnpm", "dev"]
@@ -28,7 +28,7 @@ COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY packages ./packages
 COPY apps/backend ./apps/backend
 # Run prisma generate using the backend workspace's node_modules
-RUN node apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
+RUN apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
 RUN pnpm build
 
