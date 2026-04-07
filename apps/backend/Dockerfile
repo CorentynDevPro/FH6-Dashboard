@@ -9,6 +9,7 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
 RUN pnpm install --frozen-lockfile
 
 FROM base AS development
@@ -20,7 +21,7 @@ COPY apps/backend ./apps/backend
 RUN apps/backend/node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
 EXPOSE 3000
-CMD ["pnpm", "dev"]
+CMD ["sh", "-c", "node_modules/.bin/prisma db push && pnpm dev"]
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
@@ -35,8 +36,10 @@ RUN pnpm build
 FROM node:20-alpine AS production
 RUN npm install -g pnpm@latest
 WORKDIR /app
-COPY --from=builder /app/apps/backend/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/backend/prisma ./prisma
+COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
+WORKDIR /app/apps/backend
 EXPOSE 3000
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node dist/main"]
