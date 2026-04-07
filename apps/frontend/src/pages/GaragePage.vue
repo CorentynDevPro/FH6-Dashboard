@@ -5,8 +5,17 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Garage</h1>
         <p class="text-gray-500 dark:text-gray-400">{{ total }} cars found</p>
       </div>
-      <div v-if="isLoggedIn" class="flex items-center gap-2">
+      <div class="flex items-center gap-2">
+        <AppButton
+          v-if="isStaff"
+          variant="primary"
+          size="sm"
+          @click="showAddCarModal = true"
+        >
+          ➕ Add Car
+        </AppButton>
         <button
+          v-if="isLoggedIn"
           :class="[
             'px-4 py-2 rounded-xl text-sm font-medium transition-colors',
             showMyCollection
@@ -84,6 +93,9 @@
         </AppButton>
       </div>
     </div>
+
+    <!-- Add Car Modal (ADMIN / MODERATOR only) -->
+    <AddCarModal v-if="isStaff" v-model="showAddCarModal" @created="onCarCreated" />
   </div>
 </template>
 
@@ -91,6 +103,7 @@
 import { defineComponent } from 'vue';
 import CarCard from '@/components/cars/CarCard.vue';
 import CarFilters from '@/components/cars/CarFilters.vue';
+import AddCarModal from '@/components/cars/AddCarModal.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { useCarsStore } from '@/stores/cars.store';
@@ -99,15 +112,21 @@ import type { Car } from '@fh6/types';
 
 export default defineComponent({
   name: 'GaragePage',
-  components: { CarCard, CarFilters, AppButton, LoadingSpinner },
+  components: { CarCard, CarFilters, AddCarModal, AppButton, LoadingSpinner },
   data() {
     return {
       showMyCollection: false,
+      showAddCarModal: false,
     };
   },
   computed: {
     store() { return useCarsStore(); },
-    isLoggedIn() { return useAuthStore().isLoggedIn; },
+    authStore() { return useAuthStore(); },
+    isLoggedIn() { return this.authStore.isLoggedIn; },
+    isStaff() {
+      const role = this.authStore.user?.role;
+      return role === 'ADMIN' || role === 'MODERATOR';
+    },
     cars() { return this.store.cars; },
     total() { return this.store.total; },
     page() { return this.store.page; },
@@ -153,6 +172,9 @@ export default defineComponent({
       if (this.showMyCollection && this.isLoggedIn) {
         await this.store.fetchCollection();
       }
+    },
+    onCarCreated() {
+      this.store.fetchCars();
     },
   },
 });

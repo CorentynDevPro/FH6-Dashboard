@@ -99,5 +99,20 @@ export const useCarsStore = defineStore('cars', {
       this.myCollection = this.myCollection.filter((uc) => uc.carId !== carId);
       this.collectionIds.delete(carId);
     },
+
+    async createCar(data: Partial<Car>) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const car = await carsApi.createCar(data);
+        await this.fetchCars();
+        return car;
+      } catch (err: any) {
+        this.error = err.response?.data?.message || 'Failed to create car';
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });
