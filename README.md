@@ -39,6 +39,8 @@ fh6-dashboard/
    # Edit .env — at minimum set JWT_SECRET and JWT_REFRESH_SECRET to unique random strings
    ```
 
+![alt text](image.png)
+
 2. **Start all services:**
    ```bash
    docker-compose up -d
