@@ -36,7 +36,7 @@ fh6-dashboard/
    git clone <repo-url>
    cd fh6-dashboard
    cp .env.example .env
-   # Edit .env with your secrets
+   # Edit .env — at minimum set JWT_SECRET and JWT_REFRESH_SECRET to unique random strings
    ```
 
 2. **Start all services:**
@@ -68,12 +68,18 @@ fh6-dashboard/
 # Install pnpm globally
 npm install -g pnpm@latest
 
-# Install all dependencies
+# Install all dependencies (from repo root)
 pnpm install
 
-# Set up environment
+# Set up environment variables for the backend
+# ⚠️  Both files are needed: root .env is used by docker-compose,
+#     apps/backend/.env is used by pnpm prisma commands run locally.
 cp .env.example .env
-# Fill in DATABASE_URL and JWT secrets
+cp apps/backend/.env.example apps/backend/.env
+# Open apps/backend/.env and fill in your DATABASE_URL and JWT secrets, e.g.:
+#   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fh6dashboard
+#   JWT_SECRET=your_random_secret_here
+#   JWT_REFRESH_SECRET=your_other_random_secret_here
 
 # Set up the database
 cd apps/backend
