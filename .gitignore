@@ -137,3 +137,11 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# pnpm
+.pnpm-store/
+
+# Prisma
+prisma/migrations/dev.db
+*.sqlite
+

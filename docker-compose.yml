@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fh6_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fh6user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fh6pass}
+      POSTGRES_DB: ${POSTGRES_DB:-fh6dashboard}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-fh6user}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: development
+    container_name: fh6_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fh6user}:${POSTGRES_PASSWORD:-fh6pass}@postgres:5432/${POSTGRES_DB:-fh6dashboard}
+      JWT_SECRET: ${JWT_SECRET:-supersecretjwt}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-supersecretrefresh}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: development
+    container_name: fh6_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000
+      VITE_WS_URL: ws://localhost:3000
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend
+    volumes:
+      - ./:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

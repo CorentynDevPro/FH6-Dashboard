@@ -1,0 +1,265 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum CarCategory {
+  SPORT
+  SUV
+  TRUCK
+  CLASSIC
+  OFFROAD
+  HYPERCAR
+  MUSCLE
+  BUGGY
+}
+
+enum CarClass {
+  D
+  C
+  B
+  A
+  S1
+  S2
+  X
+}
+
+enum DrivetrainType {
+  FWD
+  RWD
+  AWD
+}
+
+enum ChallengeType {
+  DAILY
+  WEEKLY
+  SEASONAL
+  SPECIAL
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  displayName  String
+  passwordHash String
+  avatarUrl    String?
+  role         UserRole @default(USER)
+  bio          String?
+  country      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens RefreshToken[]
+  builds        Build[]
+  comments      Comment[]
+  likes         Like[]
+  ranking       Ranking?
+  progress      Progress?
+  achievements  Achievement[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Car {
+  id           String         @id @default(cuid())
+  make         String
+  model        String
+  year         Int
+  category     CarCategory
+  carClass     CarClass
+  drivetrain   DrivetrainType
+  engineType   String
+  displacement Float
+  horsepower   Int
+  torque       Int
+  weight       Int
+  imageUrl     String?
+  rarity       Int            @default(1)
+  creditCost   Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  stats  CarStats?
+  builds Build[]
+
+  @@index([make])
+  @@index([category])
+  @@index([carClass])
+}
+
+model CarStats {
+  id           String @id @default(cuid())
+  carId        String @unique
+  car          Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+  speed        Float
+  handling     Float
+  acceleration Float
+  launch       Float
+  braking      Float
+  offroad      Float
+  piRating     Int
+}
+
+model Build {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  carId       String
+  car         Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  tuneCode    String?
+  isPublic    Boolean  @default(true)
+  tags        String[]
+  /// JSON object storing tuning configuration. Expected keys: engine (object), suspension (object),
+  /// tyres (object), gearbox (object), aero (object), brakes (object). Each key is optional.
+  setupData   Json     @default("{}")
+  likesCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  comments Comment[]
+  likes    Like[]
+
+  @@index([authorId])
+  @@index([carId])
+  @@index([isPublic])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  buildId   String
+  build     Build    @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([buildId])
+  @@index([authorId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  buildId   String
+  build     Build    @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([buildId, userId])
+  @@index([buildId])
+  @@index([userId])
+}
+
+model Ranking {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  globalRank   Int      @default(0)
+  score        Int      @default(0)
+  wins         Int      @default(0)
+  topThree     Int      @default(0)
+  topTen       Int      @default(0)
+  totalRaces   Int      @default(0)
+  winRate      Float    @default(0)
+  updatedAt    DateTime @updatedAt
+
+  @@index([globalRank])
+  @@index([score])
+}
+
+model Progress {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level                Int      @default(1)
+  xp                   Int      @default(0)
+  xpToNextLevel        Int      @default(1000)
+  carsOwned            Int      @default(0)
+  racesCompleted       Int      @default(0)
+  challengesCompleted  Int      @default(0)
+  updatedAt            DateTime @updatedAt
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  icon        String
+  unlockedAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Challenge {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  type        ChallengeType
+  xpReward    Int           @default(100)
+  icon        String        @default("🏆")
+  startsAt    DateTime
+  endsAt      DateTime
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+
+  completions ChallengeCompletion[]
+
+  @@index([isActive])
+  @@index([endsAt])
+}
+
+model ChallengeCompletion {
+  id          String    @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      String
+  completedAt DateTime  @default(now())
+
+  @@unique([challengeId, userId])
+  @@index([userId])
+}
+
+model Season {
+  id        String   @id @default(cuid())
+  name      String
+  theme     String
+  startsAt  DateTime
+  endsAt    DateTime
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isActive])
+}
