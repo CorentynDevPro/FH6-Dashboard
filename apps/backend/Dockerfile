@@ -15,8 +15,9 @@ FROM base AS development
 COPY --from=deps /app/node_modules ./node_modules
 COPY packages ./packages
 COPY apps/backend ./apps/backend
+# Run prisma generate from the workspace root where node_modules lives
+RUN node node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
-RUN pnpm prisma generate
 EXPOSE 3000
 CMD ["pnpm", "dev"]
 
@@ -24,8 +25,9 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY packages ./packages
 COPY apps/backend ./apps/backend
+# Run prisma generate from the workspace root where node_modules lives
+RUN node node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma
 WORKDIR /app/apps/backend
-RUN pnpm prisma generate
 RUN pnpm build
 
 FROM node:20-alpine AS production
