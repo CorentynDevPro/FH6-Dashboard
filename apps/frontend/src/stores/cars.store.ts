@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { carsApi } from '@/api/cars.api';
-import type { Car, CarFilterParams } from '@fh6/types';
+import { carsApi, collectionApi } from '@/api/cars.api';
+import type { Car, CarFilterParams, UserCar } from '@fh6/types';
 
 interface CarsState {
   cars: Car[];
@@ -11,6 +11,9 @@ interface CarsState {
   loading: boolean;
   error: string | null;
   filters: CarFilterParams;
+  myCollection: UserCar[];
+  collectionIds: Set<string>;
+  collectionLoading: boolean;
 }
 
 export const useCarsStore = defineStore('cars', {
@@ -23,10 +26,14 @@ export const useCarsStore = defineStore('cars', {
     loading: false,
     error: null,
     filters: {},
+    myCollection: [],
+    collectionIds: new Set<string>(),
+    collectionLoading: false,
   }),
 
   getters: {
     totalPages: (state): number => Math.ceil(state.total / state.pageSize),
+    isInCollection: (state) => (carId: string): boolean => state.collectionIds.has(carId),
   },
 
   actions: {
@@ -66,6 +73,31 @@ export const useCarsStore = defineStore('cars', {
       this.filters = {};
       this.page = 1;
       this.fetchCars();
+    },
+
+    async fetchCollection() {
+      this.collectionLoading = true;
+      try {
+        this.myCollection = await collectionApi.getCollection();
+        this.collectionIds = new Set(this.myCollection.map((uc) => uc.carId));
+      } catch (err: any) {
+        console.error('Failed to fetch collection', err);
+      } finally {
+        this.collectionLoading = false;
+      }
+    },
+
+    async addToCollection(carId: string, notes?: string) {
+      const entry = await collectionApi.addCar(carId, notes);
+      this.myCollection.unshift(entry);
+      this.collectionIds.add(carId);
+      return entry;
+    },
+
+    async removeFromCollection(carId: string) {
+      await collectionApi.removeCar(carId);
+      this.myCollection = this.myCollection.filter((uc) => uc.carId !== carId);
+      this.collectionIds.delete(carId);
     },
   },
 });

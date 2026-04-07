@@ -29,6 +29,20 @@
           class="text-yellow-400 text-xs"
         >★</span>
       </div>
+      <!-- Collection toggle -->
+      <button
+        v-if="isLoggedIn"
+        :class="[
+          'absolute top-2 left-2 w-8 h-8 rounded-lg flex items-center justify-center shadow transition-colors',
+          inCollection
+            ? 'bg-brand-500 text-white'
+            : 'bg-white/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-brand-500',
+        ]"
+        :title="inCollection ? 'Remove from collection' : 'Add to collection'"
+        @click.stop="toggleCollection"
+      >
+        {{ inCollection ? '♥' : '♡' }}
+      </button>
     </div>
 
     <!-- Car info -->
@@ -39,7 +53,7 @@
           <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">{{ car.model }}</h3>
           <p class="text-xs text-gray-400 dark:text-gray-500">{{ car.year }}</p>
         </div>
-        <AppBadge :variant="categoryVariant">{{ car.category }}</AppBadge>
+        <AppBadge :variant="categoryVariant">{{ categoryLabel }}</AppBadge>
       </div>
 
       <!-- Stats mini bar -->
@@ -69,6 +83,25 @@ import { defineComponent } from 'vue';
 import type { PropType } from 'vue';
 import type { Car } from '@fh6/types';
 import AppBadge from '@/components/common/AppBadge.vue';
+import { useCarsStore } from '@/stores/cars.store';
+import { useAuthStore } from '@/stores/auth.store';
+
+const CATEGORY_LABELS: Record<string, string> = {
+  SPORT: 'Sport',
+  SUV: 'SUV',
+  TRUCK: 'Truck',
+  CLASSIC: 'Classic',
+  OFFROAD: 'Offroad',
+  HYPERCAR: 'Hypercar',
+  MUSCLE: 'Muscle',
+  BUGGY: 'Buggy',
+  SUPERCAR: 'Supercar',
+  TRACK_TOY: 'Track Toy',
+  HOT_HATCH: 'Hot Hatch',
+  RALLY: 'Rally',
+  ELECTRIC: 'Electric',
+  DRIFT: 'Drift',
+};
 
 export default defineComponent({
   name: 'CarCard',
@@ -81,6 +114,8 @@ export default defineComponent({
   },
   emits: ['click'],
   computed: {
+    isLoggedIn(): boolean { return useAuthStore().isLoggedIn; },
+    inCollection(): boolean { return useCarsStore().isInCollection(this.car.id); },
     classColor(): string {
       const colors: Record<string, string> = {
         D: 'bg-gray-500',
@@ -93,16 +128,25 @@ export default defineComponent({
       };
       return colors[this.car.carClass] || 'bg-gray-400';
     },
+    categoryLabel(): string {
+      return CATEGORY_LABELS[this.car.category] || this.car.category;
+    },
     categoryVariant(): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' {
       const variants: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
         HYPERCAR: 'danger',
+        SUPERCAR: 'danger',
         SPORT: 'primary',
         MUSCLE: 'warning',
         OFFROAD: 'success',
+        RALLY: 'success',
         SUV: 'info',
         TRUCK: 'default',
         CLASSIC: 'default',
         BUGGY: 'success',
+        TRACK_TOY: 'primary',
+        HOT_HATCH: 'primary',
+        ELECTRIC: 'info',
+        DRIFT: 'warning',
       };
       return variants[this.car.category] || 'default';
     },
@@ -113,6 +157,16 @@ export default defineComponent({
         { key: 'handling', label: 'Hdl', value: this.car.stats.handling.toFixed(1) },
         { key: 'acceleration', label: 'Acc', value: this.car.stats.acceleration.toFixed(1) },
       ];
+    },
+  },
+  methods: {
+    async toggleCollection() {
+      const store = useCarsStore();
+      if (this.inCollection) {
+        await store.removeFromCollection(this.car.id);
+      } else {
+        await store.addToCollection(this.car.id);
+      }
     },
   },
 });

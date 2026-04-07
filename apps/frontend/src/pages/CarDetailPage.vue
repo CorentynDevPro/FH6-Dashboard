@@ -18,11 +18,20 @@
         >
           ← Back
         </button>
-        <div>
+        <div class="flex-1">
           <p class="text-sm text-gray-500 dark:text-gray-400">{{ car.make }}</p>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ car.model }}</h1>
           <p class="text-gray-400 dark:text-gray-500">{{ car.year }}</p>
         </div>
+        <AppButton
+          v-if="isLoggedIn"
+          :variant="inCollection ? 'danger' : 'primary'"
+          size="sm"
+          :loading="collectionLoading"
+          @click="toggleCollection"
+        >
+          {{ inCollection ? '♥ In Collection' : '♡ Add to Collection' }}
+        </AppButton>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,14 +113,22 @@ import CarStatsChart from '@/components/cars/CarStatsChart.vue';
 import BuildCard from '@/components/builds/BuildCard.vue';
 import { useCarsStore } from '@/stores/cars.store';
 import { useBuildsStore } from '@/stores/builds.store';
+import { useAuthStore } from '@/stores/auth.store';
 
 export default defineComponent({
   name: 'CarDetailPage',
   components: { AppCard, AppButton, LoadingSpinner, CarStatsChart, BuildCard },
+  data() {
+    return {
+      collectionLoading: false,
+    };
+  },
   computed: {
     carsStore() { return useCarsStore(); },
     car() { return this.carsStore.currentCar as any; },
     loading() { return this.carsStore.loading; },
+    isLoggedIn() { return useAuthStore().isLoggedIn; },
+    inCollection(): boolean { return this.car ? this.carsStore.isInCollection(this.car.id) : false; },
     classColor(): string {
       if (!this.car) return '';
       const colors: Record<string, string> = { D: 'bg-gray-500', C: 'bg-blue-500', B: 'bg-yellow-500', A: 'bg-orange-500', S1: 'bg-purple-500', S2: 'bg-red-500', X: 'bg-pink-600' };
@@ -142,8 +159,24 @@ export default defineComponent({
   async mounted() {
     const id = this.$route.params.id as string;
     await this.carsStore.fetchCar(id);
+    if (this.isLoggedIn) {
+      await this.carsStore.fetchCollection();
+    }
   },
   methods: {
+    async toggleCollection() {
+      if (!this.car) return;
+      this.collectionLoading = true;
+      try {
+        if (this.inCollection) {
+          await this.carsStore.removeFromCollection(this.car.id);
+        } else {
+          await this.carsStore.addToCollection(this.car.id);
+        }
+      } finally {
+        this.collectionLoading = false;
+      }
+    },
     async handleLike(buildId: string) {
       await useBuildsStore().toggleLike(buildId);
     },

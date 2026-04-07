@@ -7,6 +7,12 @@ export enum CarCategory {
   HYPERCAR = 'HYPERCAR',
   MUSCLE = 'MUSCLE',
   BUGGY = 'BUGGY',
+  SUPERCAR = 'SUPERCAR',
+  TRACK_TOY = 'TRACK_TOY',
+  HOT_HATCH = 'HOT_HATCH',
+  RALLY = 'RALLY',
+  ELECTRIC = 'ELECTRIC',
+  DRIFT = 'DRIFT',
 }
 
 export enum CarClass {
@@ -74,4 +80,13 @@ export interface CarFilterParams {
   maxYear?: number;
   page?: number;
   pageSize?: number;
+}
+
+export interface UserCar {
+  id: string;
+  userId: string;
+  carId: string;
+  car: Car;
+  notes?: string;
+  addedAt: Date;
 }

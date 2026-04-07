@@ -26,6 +26,12 @@ enum CarCategory {
   HYPERCAR
   MUSCLE
   BUGGY
+  SUPERCAR
+  TRACK_TOY
+  HOT_HATCH
+  RALLY
+  ELECTRIC
+  DRIFT
 }
 
 enum CarClass {
@@ -71,6 +77,7 @@ model User {
   ranking       Ranking?
   progress      Progress?
   achievements  Achievement[]
+  collection    UserCar[]
 
   @@index([email])
   @@index([username])
@@ -109,6 +116,7 @@ model Car {
 
   stats  CarStats?
   builds Build[]
+  owners UserCar[]
 
   @@index([make])
   @@index([category])
@@ -263,4 +271,18 @@ model Season {
   createdAt DateTime @default(now())
 
   @@index([isActive])
+}
+
+model UserCar {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  carId     String
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  notes     String?
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, carId])
+  @@index([userId])
+  @@index([carId])
 }

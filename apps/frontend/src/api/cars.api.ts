@@ -1,5 +1,5 @@
 import apiClient from './axios';
-import type { Car, CarListResponse, CarFilterParams } from '@fh6/types';
+import type { Car, CarListResponse, CarFilterParams, UserCar } from '@fh6/types';
 
 export const carsApi = {
   async getCars(params?: CarFilterParams): Promise<CarListResponse> {
@@ -24,5 +24,21 @@ export const carsApi = {
 
   async deleteCar(id: string): Promise<void> {
     await apiClient.delete(`/cars/${id}`);
+  },
+};
+
+export const collectionApi = {
+  async getCollection(): Promise<UserCar[]> {
+    const res = await apiClient.get<UserCar[]>('/collection');
+    return res.data;
+  },
+
+  async addCar(carId: string, notes?: string): Promise<UserCar> {
+    const res = await apiClient.post<UserCar>(`/collection/${carId}`, { notes });
+    return res.data;
+  },
+
+  async removeCar(carId: string): Promise<void> {
+    await apiClient.delete(`/collection/${carId}`);
   },
 };

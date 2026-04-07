@@ -67,7 +67,7 @@ export default defineComponent({
         drivetrain: '',
       } as Record<string, string>,
       debounceTimer: null as ReturnType<typeof setTimeout> | null,
-      categories: ['SPORT', 'SUV', 'TRUCK', 'CLASSIC', 'OFFROAD', 'HYPERCAR', 'MUSCLE', 'BUGGY'],
+      categories: ['SPORT', 'SUV', 'TRUCK', 'CLASSIC', 'OFFROAD', 'HYPERCAR', 'MUSCLE', 'BUGGY', 'SUPERCAR', 'TRACK_TOY', 'HOT_HATCH', 'RALLY', 'ELECTRIC', 'DRIFT'],
       classes: ['D', 'C', 'B', 'A', 'S1', 'S2', 'X'],
     };
   },
