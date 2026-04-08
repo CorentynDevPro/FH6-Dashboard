@@ -4,7 +4,7 @@ import router from '@/router';
 import { useAuthStore } from '@/stores/auth.store';
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -66,7 +66,7 @@ apiClient.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/auth/refresh`,
+          `${import.meta.env.VITE_API_BASE_URL || '/api'}/auth/refresh`,
           { refreshToken },
         );
 
