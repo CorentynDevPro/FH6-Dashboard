@@ -9,9 +9,11 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'fallback_secret',
-      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '15m') as any },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET || 'fallback_secret',
+        signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
+      }),
     }),
     UsersModule,
   ],
