@@ -138,7 +138,7 @@ export class AuthService {
       { sub: userId },
       {
         secret: process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret',
-        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as any,
       },
     );
 
