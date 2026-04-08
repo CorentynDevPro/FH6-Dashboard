@@ -29,7 +29,54 @@ fh6-dashboard/
 └── .env.example
 ```
 
-## Quick Start (Docker)
+## Deploying to Vercel
+
+The project includes a `vercel.json` at the root that handles both the **frontend** (Vue 3 static SPA) and the **backend** (NestJS serverless function).
+
+### Architecture on Vercel
+
+| Path | Handled by |
+|------|-----------|
+| `/api/*` | NestJS serverless function (`apps/backend/api/index.js`) |
+| `/*` | Vue 3 SPA (`apps/frontend/dist/index.html`) |
+
+### Steps
+
+1. **Push to GitHub** and connect the repository in the [Vercel dashboard](https://vercel.com/new).
+
+2. **Set these environment variables** in your Vercel project settings:
+
+   | Variable | Example value | Required |
+   |----------|---------------|----------|
+   | `DATABASE_URL` | `postgresql://user:pass@host:5432/db` | ✅ |
+   | `JWT_SECRET` | a long random string | ✅ |
+   | `JWT_REFRESH_SECRET` | another long random string | ✅ |
+   | `JWT_EXPIRES_IN` | `15m` | ✅ |
+   | `JWT_REFRESH_EXPIRES_IN` | `7d` | ✅ |
+   | `FRONTEND_URL` | `https://your-project.vercel.app` | ✅ (CORS) |
+   | `NODE_ENV` | `production` | ✅ |
+
+   > **Database**: Vercel does not provide PostgreSQL. Use a serverless-friendly provider such as [Neon](https://neon.tech) or [Supabase](https://supabase.com) and set `DATABASE_URL` to the connection string they provide.
+
+3. **Deploy** — Vercel will automatically run the build command defined in `vercel.json`:
+   ```
+   pnpm install --frozen-lockfile && pnpm --filter @fh6/types build && pnpm --filter backend prisma:generate && pnpm --filter backend build && pnpm --filter frontend build
+   ```
+
+4. **Run database migrations** once after the first deploy (using your database provider's console, or a one-off script):
+   ```bash
+   DATABASE_URL=<your_url> npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma
+   ```
+
+5. **Access the app** at your Vercel project URL.  Swagger docs will be at `https://your-project.vercel.app/api/docs`.
+
+### Local development (unchanged)
+
+The Docker / pnpm local dev workflow still works exactly as before — see [Quick Start (Docker)](#quick-start-docker) or [Local Development (without Docker)](#local-development-without-docker) below.
+
+---
+
+
 
 1. **Clone and configure environment:**
    ```bash
