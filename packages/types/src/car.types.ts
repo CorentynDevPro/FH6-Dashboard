@@ -1,3 +1,11 @@
+export enum CarRarity {
+  COMMON = 'COMMON',
+  RARE = 'RARE',
+  ULTRA_RARE = 'ULTRA_RARE',
+  EPIC = 'EPIC',
+  LEGENDARY = 'LEGENDARY',
+}
+
 export enum CarCategory {
   SPORT = 'SPORT',
   SUV = 'SUV',
@@ -57,7 +65,8 @@ export interface Car {
   torque: number;
   weight: number;
   imageUrl?: string;
-  rarity: number;
+  rarity: CarRarity;
+  isForzaEdition: boolean;
   creditCost: number;
   stats?: CarStats;
   createdAt: Date;

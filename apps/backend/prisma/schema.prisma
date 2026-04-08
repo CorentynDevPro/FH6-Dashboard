@@ -50,6 +50,14 @@ enum DrivetrainType {
   AWD
 }
 
+enum CarRarity {
+  COMMON
+  RARE
+  ULTRA_RARE
+  EPIC
+  LEGENDARY
+}
+
 enum ChallengeType {
   DAILY
   WEEKLY
@@ -109,7 +117,8 @@ model Car {
   torque       Int
   weight       Int
   imageUrl     String?
-  rarity       Int            @default(1)
+  rarity       CarRarity      @default(COMMON)
+  isForzaEdition Boolean      @default(false)
   creditCost   Int            @default(0)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt

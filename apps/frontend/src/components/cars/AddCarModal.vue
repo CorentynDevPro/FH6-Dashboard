@@ -74,18 +74,26 @@
       </div>
 
       <!-- Extras -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Credit Cost</label>
           <input v-model.number="form.creditCost" type="number" class="input text-sm" min="0" placeholder="0" />
         </div>
         <div>
-          <label class="label">Rarity (1–5)</label>
-          <input v-model.number="form.rarity" type="number" class="input text-sm" min="1" max="5" placeholder="1" />
+          <label class="label">Rarity</label>
+          <select v-model="form.rarity" class="input text-sm">
+            <option v-for="r in rarities" :key="r.value" :value="r.value">{{ r.label }}</option>
+          </select>
         </div>
         <div>
           <label class="label">Image URL</label>
           <input v-model="form.imageUrl" type="url" class="input text-sm" placeholder="https://..." />
+        </div>
+        <div class="flex items-center gap-3 pt-5">
+          <input id="forzaEdition" v-model="form.isForzaEdition" type="checkbox" class="w-4 h-4 accent-amber-500" />
+          <label for="forzaEdition" class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+            ✦ Forza Edition
+          </label>
         </div>
       </div>
 
@@ -173,6 +181,14 @@ const CATEGORIES = [
   { value: 'BUGGY', label: 'Buggy' },
 ];
 
+const RARITIES = [
+  { value: 'COMMON',     label: 'Common' },
+  { value: 'RARE',       label: 'Rare' },
+  { value: 'ULTRA_RARE', label: 'Ultra Rare' },
+  { value: 'EPIC',       label: 'Epic' },
+  { value: 'LEGENDARY',  label: 'Legendary' },
+];
+
 const EMPTY_FORM = () => ({
   make: '',
   model: '',
@@ -186,7 +202,8 @@ const EMPTY_FORM = () => ({
   torque: null as number | null,
   weight: null as number | null,
   creditCost: 0,
-  rarity: 1,
+  rarity: 'COMMON' as string,
+  isForzaEdition: false,
   imageUrl: '',
   stats: {
     speed: null as number | null,
@@ -217,6 +234,7 @@ export default defineComponent({
       error: null as string | null,
       categories: CATEGORIES,
       classes: ['D', 'C', 'B', 'A', 'S1', 'S2', 'X'],
+      rarities: RARITIES,
     };
   },
   computed: {
