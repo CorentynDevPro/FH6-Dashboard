@@ -51,4 +51,13 @@ export class UsersService {
     const { passwordHash, ...rest } = user;
     return rest;
   }
+
+  async updateRole(id: string, role: string) {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { role: role as any },
+    });
+    const { passwordHash, ...rest } = user;
+    return rest;
+  }
 }

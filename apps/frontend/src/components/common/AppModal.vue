@@ -6,9 +6,9 @@
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeOnBackdrop && close()" />
 
         <!-- Modal -->
-        <div :class="['relative w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl', sizeClass]">
+        <div :class="['relative w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]', sizeClass]">
           <!-- Header -->
-          <div v-if="title || $slots.header" class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+          <div v-if="title || $slots.header" class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
             <h2 v-if="title" class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ title }}</h2>
             <slot name="header" />
             <button
@@ -23,12 +23,12 @@
           </div>
 
           <!-- Body -->
-          <div class="p-6">
+          <div class="p-6 overflow-y-auto flex-1">
             <slot />
           </div>
 
           <!-- Footer -->
-          <div v-if="$slots.footer" class="p-6 pt-0 flex justify-end gap-3">
+          <div v-if="$slots.footer" class="p-6 pt-0 flex-shrink-0 flex justify-end gap-3">
             <slot name="footer" />
           </div>
         </div>

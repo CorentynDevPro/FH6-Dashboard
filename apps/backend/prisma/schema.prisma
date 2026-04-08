@@ -26,6 +26,12 @@ enum CarCategory {
   HYPERCAR
   MUSCLE
   BUGGY
+  SUPERCAR
+  TRACK_TOY
+  HOT_HATCH
+  RALLY
+  ELECTRIC
+  DRIFT
 }
 
 enum CarClass {
@@ -42,6 +48,14 @@ enum DrivetrainType {
   FWD
   RWD
   AWD
+}
+
+enum CarRarity {
+  COMMON
+  RARE
+  ULTRA_RARE
+  EPIC
+  LEGENDARY
 }
 
 enum ChallengeType {
@@ -71,6 +85,7 @@ model User {
   ranking       Ranking?
   progress      Progress?
   achievements  Achievement[]
+  collection    UserCar[]
 
   @@index([email])
   @@index([username])
@@ -102,13 +117,15 @@ model Car {
   torque       Int
   weight       Int
   imageUrl     String?
-  rarity       Int            @default(1)
+  rarity       CarRarity      @default(COMMON)
+  isForzaEdition Boolean      @default(false)
   creditCost   Int            @default(0)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
   stats  CarStats?
   builds Build[]
+  owners UserCar[]
 
   @@index([make])
   @@index([category])
@@ -263,4 +280,18 @@ model Season {
   createdAt DateTime @default(now())
 
   @@index([isActive])
+}
+
+model UserCar {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  carId     String
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  notes     String?
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, carId])
+  @@index([userId])
+  @@index([carId])
 }

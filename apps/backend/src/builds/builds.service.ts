@@ -106,10 +106,10 @@ export class BuildsService {
     });
   }
 
-  async update(id: string, userId: string, dto: UpdateBuildDto) {
+  async update(id: string, userId: string, dto: UpdateBuildDto, userRole?: string) {
     const build = await this.prisma.build.findUnique({ where: { id } });
     if (!build) throw new NotFoundException('Build not found');
-    if (build.authorId !== userId) throw new ForbiddenException('Not your build');
+    if (build.authorId !== userId && userRole !== 'ADMIN') throw new ForbiddenException('Not your build');
 
     return this.prisma.build.update({
       where: { id },
@@ -117,10 +117,10 @@ export class BuildsService {
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string, userRole?: string) {
     const build = await this.prisma.build.findUnique({ where: { id } });
     if (!build) throw new NotFoundException('Build not found');
-    if (build.authorId !== userId) throw new ForbiddenException('Not your build');
+    if (build.authorId !== userId && userRole !== 'ADMIN') throw new ForbiddenException('Not your build');
     await this.prisma.build.delete({ where: { id } });
     return { message: 'Build deleted' };
   }
@@ -165,10 +165,10 @@ export class BuildsService {
     });
   }
 
-  async deleteComment(commentId: string, userId: string) {
+  async deleteComment(commentId: string, userId: string, userRole?: string) {
     const comment = await this.prisma.comment.findUnique({ where: { id: commentId } });
     if (!comment) throw new NotFoundException('Comment not found');
-    if (comment.authorId !== userId) throw new ForbiddenException('Not your comment');
+    if (comment.authorId !== userId && userRole !== 'ADMIN') throw new ForbiddenException('Not your comment');
     await this.prisma.comment.delete({ where: { id: commentId } });
     return { message: 'Comment deleted' };
   }

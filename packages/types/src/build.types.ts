@@ -23,11 +23,15 @@ export interface Build {
 
 export interface BuildSetup {
   tires?: TireSetup;
+  alignment?: AlignmentSetup;
+  antiRollBars?: AntiRollBarSetup;
   suspension?: SuspensionSetup;
-  engine?: EngineSetup;
-  transmission?: TransmissionSetup;
+  dampers?: DamperSetup;
   aero?: AeroSetup;
+  transmission?: TransmissionSetup;
+  differential?: DifferentialSetup;
   brakes?: BrakeSetup;
+  engine?: EngineSetup;
 }
 
 export interface TireSetup {
@@ -38,17 +42,45 @@ export interface TireSetup {
   rearWidth: number;
 }
 
+export interface AlignmentSetup {
+  frontCamber: number;
+  rearCamber: number;
+  frontToe: number;
+  rearToe: number;
+  frontCaster: number;
+}
+
+export interface AntiRollBarSetup {
+  front: number;
+  rear: number;
+}
+
 export interface SuspensionSetup {
   frontRideHeight: number;
   rearRideHeight: number;
   frontSpringRate: number;
   rearSpringRate: number;
-  frontDamping: number;
-  rearDamping: number;
-  frontCamber: number;
-  rearCamber: number;
-  frontToe: number;
-  rearToe: number;
+}
+
+export interface DamperSetup {
+  frontCompression: number;
+  rearCompression: number;
+  frontRebound: number;
+  rearRebound: number;
+}
+
+export interface DifferentialSetup {
+  type: 'Open' | 'Sport' | 'Race';
+  // FWD
+  fwdAcceleration?: number;
+  fwdDeceleration?: number;
+  // RWD
+  rwdAcceleration?: number;
+  rwdDeceleration?: number;
+  // AWD
+  awdFront?: number;
+  awdRear?: number;
+  awdBalance?: number;
 }
 
 export interface EngineSetup {

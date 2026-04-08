@@ -5,13 +5,14 @@ import {
   IsOptional,
   IsNumber,
   IsUrl,
+  IsBoolean,
   Min,
   Max,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CarCategory, CarClass, DrivetrainType } from '@prisma/client';
+import { CarCategory, CarClass, DrivetrainType, CarRarity } from '@prisma/client';
 
 class CarStatsDto {
   @IsNumber() @Min(0) @Max(10) speed: number;
@@ -36,7 +37,8 @@ export class CreateCarDto {
   @ApiProperty() @IsInt() torque: number;
   @ApiProperty() @IsInt() weight: number;
   @ApiPropertyOptional() @IsOptional() @IsUrl() imageUrl?: string;
-  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(1) @Max(5) rarity?: number;
+  @ApiPropertyOptional({ enum: CarRarity }) @IsOptional() @IsEnum(CarRarity) rarity?: CarRarity;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() isForzaEdition?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) creditCost?: number;
 
   @ApiPropertyOptional({ type: CarStatsDto })

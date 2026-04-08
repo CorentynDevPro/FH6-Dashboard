@@ -78,7 +78,7 @@ export class BuildsController {
     @CurrentUser() user: any,
     @Body() dto: UpdateBuildDto,
   ) {
-    return this.buildsService.update(id, user.id, dto);
+    return this.buildsService.update(id, user.id, dto, user.role);
   }
 
   @Delete(':id')
@@ -87,7 +87,7 @@ export class BuildsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a build' })
   async remove(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.buildsService.remove(id, user.id);
+    return this.buildsService.remove(id, user.id, user.role);
   }
 
   @Post(':id/like')
@@ -127,6 +127,6 @@ export class BuildsController {
     @Param('commentId') commentId: string,
     @CurrentUser() user: any,
   ) {
-    return this.buildsService.deleteComment(commentId, user.id);
+    return this.buildsService.deleteComment(commentId, user.id, user.role);
   }
 }

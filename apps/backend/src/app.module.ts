@@ -7,6 +7,7 @@ import { BuildsModule } from './builds/builds.module';
 import { RankingsModule } from './rankings/rankings.module';
 import { ProgressModule } from './progress/progress.module';
 import { ChallengesModule } from './challenges/challenges.module';
+import { CollectionModule } from './collection/collection.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ChallengesModule } from './challenges/challenges.module';
     RankingsModule,
     ProgressModule,
     ChallengesModule,
+    CollectionModule,
   ],
 })
 export class AppModule {}
