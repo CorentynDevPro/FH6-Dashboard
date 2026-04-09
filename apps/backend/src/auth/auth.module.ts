@@ -9,9 +9,16 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'fallback_secret',
-      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '15m') as any },
+    JwtModule.registerAsync({
+      useFactory: () => {
+        if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+          throw new Error('JWT_SECRET environment variable is required in production');
+        }
+        return {
+          secret: process.env.JWT_SECRET || 'fallback_secret',
+          signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
+        };
+      },
     }),
     UsersModule,
   ],
