@@ -16,7 +16,7 @@ import { UsersModule } from '../users/users.module';
         }
         return {
           secret: process.env.JWT_SECRET || 'fallback_secret',
-          signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
+          signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '15m') as any },
         };
       },
     }),
